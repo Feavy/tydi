@@ -1,5 +1,5 @@
 import { Project } from "ts-morph";
-import { getProviders } from "./getProviders";
+import { getProducers } from "./getProducers";
 import getSingletons from "./getSingletons";
 
 export default function processSingletons(project: Project) {
@@ -7,6 +7,6 @@ export default function processSingletons(project: Project) {
     const singletons = getSingletons(project);
     singletons.forEach(s => s.debug());
 
-    const providers = getProviders(singletons);
-    console.log(providers);
+    const producers = getProducers(singletons);
+    console.log(producers);
 }

@@ -1,13 +1,13 @@
-import Provides from "./Provides";
+import Produces from "./Produces";
 import Singleton from "./Singleton";
 
 @Singleton
 export default class Application {
 
-    @Provides
+    @Produces
     public baseUrl: string = "CONFLICT";
 
-    @Provides
+    @Produces
     public getBaseUrl(): string {
         return "http://localhost:3000";
     }
