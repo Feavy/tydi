@@ -1,4 +1,4 @@
-export default function Singleton(_constructor: Function) { };
+export default function SingletonAnnotation(_constructor: Function) { };
 
 // export default function SingletonAnnotation(name: string) {
 //   return function (constructor: Function) {

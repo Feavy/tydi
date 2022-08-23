@@ -1,5 +1,5 @@
-import ProducesAnnotation from "../../example/Produces";
 import Singleton from "./Singleton";
+import ProducesAnnotation from "./ProducesAnnotation";
 
 export function getProducers(singletons: Singleton[]) {
     const providers: any[] = [];

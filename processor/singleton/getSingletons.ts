@@ -1,7 +1,7 @@
 import { ClassDeclaration, Project, SourceFile } from "ts-morph";
 import Singleton from "./Singleton";
-import SingletonAnnotation from "../../example/Singleton";
 import SingletonDependency from "./SingletonDependency";
+import SingletonAnnotation from "./SingletonAnnotation";
 
 export default function getSingletons(project: Project): Singleton[] {
     const files = project.getSourceFiles();

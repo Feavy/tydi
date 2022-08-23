@@ -16,6 +16,7 @@
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "plugins": [
