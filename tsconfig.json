@@ -12,10 +12,11 @@
     "esModuleInterop": true,
     "noEmit": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "plugins": [
@@ -24,5 +25,5 @@
       }
     ]
   },
-  "include": ["src"]
+  "include": ["src", "processor"]
 }

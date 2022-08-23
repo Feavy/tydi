@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [
         tsPlugin({
             transformers: {
-                before: [
+                after: [
                     {
                         type: "program",
                         factory: (program) => {

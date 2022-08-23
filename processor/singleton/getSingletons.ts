@@ -1,17 +1,17 @@
 import { ClassDeclaration, Project, SourceFile } from "ts-morph";
-import Singleton from "./Singleton";
-import SingletonAnnotation from "../../example/Singleton";
+import SingletonClass from "./SingletonClass";
 import SingletonDependency from "./SingletonDependency";
+import Singleton from "./Singleton";
 
-export default function getSingletons(project: Project): Singleton[] {
+export default function getSingletons(project: Project): SingletonClass[] {
     const files = project.getSourceFiles();
     const classes = getClasses(files);
-    const singletonClasses = classes.filter(c => c.getDecorators().some(d => d.getName() == SingletonAnnotation.name));
+    const singletonClasses = classes.filter(c => c.getDecorators().some(d => d.getName() == Singleton.name));
 
-    const singletons: Singleton[] = [];
+    const singletons: SingletonClass[] = [];
     for(const singletonClass of singletonClasses) {
         const dependencies = getDependencies(singletonClass);
-        singletons.push(new Singleton(singletonClass, dependencies));
+        singletons.push(new SingletonClass(singletonClass, dependencies));
     }
 
     return singletons;

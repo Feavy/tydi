@@ -1,7 +1,7 @@
 import { ClassDeclaration } from "ts-morph";
 import SingletonDependency from "./SingletonDependency";
 
-export default class Singleton {
+export default class SingletonClass {
     public constructor(public readonly clazz: ClassDeclaration, public readonly dependencies: SingletonDependency[]) {
     }
 

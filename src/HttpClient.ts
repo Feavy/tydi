@@ -1,4 +1,4 @@
-import Singleton from "./Singleton";
+import Singleton from "../processor/singleton/Singleton";
 
 @Singleton
 export default class HttpClient {

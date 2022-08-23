@@ -1,5 +1,5 @@
-import Produces from "./Produces";
-import Singleton from "./Singleton";
+import Produces from "../processor/singleton/Produces";
+import Singleton from "../processor/singleton/Singleton";
 
 @Singleton
 export default class Application {
