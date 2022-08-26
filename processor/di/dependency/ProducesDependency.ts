@@ -7,13 +7,23 @@ export default class ProducesDependency extends Dependency {
                        types: Type[],
                        name: string,
                        producer: SingletonDependency,
+                       private readonly isMethod: boolean,
+                       private readonly member: string
     ) {
         super(declaration, types, name);
-        this.dependencies.push(producer)
+        this.dependencies.push(producer);
     }
 
     public get producer() {
         return this.dependencies[0] as SingletonDependency
+    }
+
+    public static fromDeclaration(clazz: ClassDeclaration, product: MethodDeclaration|PropertyDeclaration) {
+        if(product instanceof MethodDeclaration) {
+            return ProducesDependency.fromMethodDeclaration(clazz, product);
+        }else { //if(product instanceof PropertyDeclaration) {
+            return ProducesDependency.fromPropertyDeclaration(clazz, product);
+        }
     }
 
     public static fromMethodDeclaration(clazz: ClassDeclaration, method: MethodDeclaration) {
@@ -24,13 +34,23 @@ export default class ProducesDependency extends Dependency {
         }
         const types = [method.getReturnType()];
         types.push(...method.getReturnType().getBaseTypes());
-        return new ProducesDependency(method, types, name, SingletonDependency.fromClassDeclaration(clazz))
+        return new ProducesDependency(method, types, name, SingletonDependency.fromClassDeclaration(clazz), true, method.getName())
     }
 
     public static fromPropertyDeclaration(clazz: ClassDeclaration, property: PropertyDeclaration) {
         let name = property.getName();
         const types = [property.getType()];
         types.push(...property.getType().getBaseTypes());
-        return new ProducesDependency(property, types, name, SingletonDependency.fromClassDeclaration(clazz))
+        return new ProducesDependency(property, types, name, SingletonDependency.fromClassDeclaration(clazz), false, property.getName())
+    }
+
+    public generateInstantiationCode(): string {
+        let code: string = "";
+        if(!this.producer.instantiated) {
+            code += this.producer.generateInstantiationCode();
+        }
+        code += `const ${this.variableName} = ${this.producer.variableName}.${this.member + (this.isMethod ? "()" : "")};\n`;
+        this.instantiated = true;
+        return code;
     }
 }

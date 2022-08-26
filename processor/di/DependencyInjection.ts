@@ -5,19 +5,15 @@ import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
 
-export default function generateFile(project: Project) {
+export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
     // 1 - Collect dependencies and their dependencies (@Singleton, @Produces) & Populate data structure.
-    const singletons = getSingletons();
-    for (const singleton of singletons) {
+    const singletonsClasses = getSingletons();
+    for (const singleton of singletonsClasses) {
         graph.addDependency(SingletonDependency.fromClassDeclaration(singleton))
         const products = getProducts(singleton)
         for (const product of products) {
-            if(product instanceof MethodDeclaration) {
-                graph.addDependency(ProducesDependency.fromMethodDeclaration(singleton, product))
-            }else if(product instanceof  PropertyDeclaration) {
-                graph.addDependency(ProducesDependency.fromPropertyDeclaration(singleton, product))
-            }
+            graph.addDependency(ProducesDependency.fromDeclaration(singleton, product));
         }
     }
 
@@ -25,8 +21,34 @@ export default function generateFile(project: Project) {
     graph.linkGraph()
     graph.debug()
 
-    // 3 - Generate file.
-    // ...
+    // 3 - Generate code.
+    let code: string = "// @ts-nocheck\n";
+
+    // Generate imports
+    code += "// IMPORTS\n";
+    const singletons = graph.singletons;
+    for (const singleton of singletons) {
+        code += singleton.importStatement+"\n";
+    }
+
+    code += "\n";
+
+    // Generate dependencies
+    code += "// DEPENDENCIES\n";
+    const entrypoints = graph.entrypoints;
+    for (const entrypoint of entrypoints) {
+        code += entrypoint.generateInstantiationCode()
+    }
+
+    console.log();
+
+    console.log("GENERATED:")
+    console.log(code);
+
+    // Call setup methods if needed
+
+    return code;
+
 
     function getSingletons(): ClassDeclaration[] {
         const files = project.getSourceFiles();
