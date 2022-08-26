@@ -1,11 +1,14 @@
-import Produces from "../processor/singleton/Produces";
-import Singleton from "../processor/singleton/Singleton";
+import Produces from "../processor/di/annotations/Produces";
+import Singleton from "../processor/di/annotations/Singleton";
 
 @Singleton
 export default class Application {
 
+    // @Produces
+    // public baseUrl: string = "CONFLICT";
+
     @Produces
-    public baseUrl: string = "CONFLICT";
+    public a: number = 8;
 
     @Produces
     public getBaseUrl(): string {

@@ -1,4 +1,4 @@
-import Singleton from "../processor/singleton/Singleton";
+import Singleton from "../processor/di/annotations/Singleton";
 
 @Singleton
 export default class MyService {

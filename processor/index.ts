@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { Project } from "ts-morph";
-import processSingletons from "./singleton/processSingletons";
 import {existsSync} from "fs";
+import * as DependencyInjection from "./di/DependencyInjection"
 
 export default function(program: ts.Program, pluginOptions: {}) {
     const directory = program.getCurrentDirectory();
@@ -20,18 +20,20 @@ export default function(program: ts.Program, pluginOptions: {}) {
     project.addSourceFilesFromTsConfig("./tsconfig.json");
 
     // Create CDI file
-    const cdiFile = project.getDirectories()[0].createSourceFile("cdi.ts")
-    cdiFile.addStatements("console.log('[SETUP CDI] Entrypoint2.');\nexport {}");
-    cdiFile.saveSync()
+    DependencyInjection.default(project)
 
-    // Process CDI
-    processSingletons(project);
-
-    const src = project.getDirectory("src")
-
-    // Inject statement in index
-    const index = src.getSourceFile("index.ts") || src.getSourceFile("main.ts")
-    index.insertStatements(0, "console.log('This log was added by the processor :O');")
+    // const cdiFile = project.getDirectories()[0].createSourceFile("cdi.ts")
+    // cdiFile.addStatements("console.log('[SETUP CDI] Entrypoint2.');\nexport {}");
+    // cdiFile.saveSync()
+    //
+    // // Process CDI
+    // processSingletons(project);
+    //
+    // const src = project.getDirectory("src")
+    //
+    // // Inject statement in index
+    // const index = src.getSourceFile("index.ts") || src.getSourceFile("main.ts")
+    // index.insertStatements(0, "console.log('This log was added by the processor :O');")
 
     return (ctx: ts.TransformationContext) => {
         return (sourceFile: ts.SourceFile) => {
