@@ -1,7 +1,8 @@
 import Singleton from "../processor/di/annotations/Singleton";
+import IHttpClient from "./IHttpClient";
 
 @Singleton
-export default class HttpClient {
+export default class HttpClient implements IHttpClient {
 
     public constructor(private baseUrl: string) {
         console.log("HttpClient created", this.baseUrl);

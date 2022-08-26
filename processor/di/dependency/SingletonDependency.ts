@@ -13,7 +13,8 @@ export default class SingletonDependency extends Dependency {
     public static fromClassDeclaration(clazz: ClassDeclaration) {
         const name = clazz.getName();
         const types = [clazz.getType()];
-        types.push(...clazz.getType().getBaseTypes());
+        types.push(...clazz.getBaseTypes());
+        types.push(...clazz.getImplements().map(i => i.getType()))
 
         const dependencies = clazz.getConstructors().flatMap(c => c.getParameters()).map(p => new Dependency(p, [p.getType()], p.getName()));
 

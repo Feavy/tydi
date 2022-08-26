@@ -1,9 +1,12 @@
 import Singleton from "../processor/di/annotations/Singleton";
-import HttpClient from "./HttpClient";
+import type IHttpClient from "./IHttpClient";
 
 @Singleton
 export default class MyService {
-    public constructor(private a: number, private httpClient: HttpClient) {
+    private httpClient: IHttpClient;
+
+    public constructor(private a: number, httpClient: IHttpClient) {
+        this.httpClient = httpClient;
         console.log(this.a);
     }
     
