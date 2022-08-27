@@ -21,7 +21,6 @@ export default function generateCode(project: Project) {
 
     // 2 - Link dependency graph.
     graph.linkGraph()
-    graph.debug()
 
 
     // 3 - Generate code.
@@ -75,9 +74,6 @@ export default function generateCode(project: Project) {
     }
 
     console.log();
-
-    console.log("GENERATED:")
-    console.log(code);
 
     // Call setup methods if needed
 
