@@ -25,7 +25,7 @@ export default function generateCode(project: Project) {
     let code: string = "// @ts-nocheck\n";
 
     // Generate imports
-    code += "// IMPORTS\n";
+    code += "// Imports\n";
     const singletons = graph.singletons;
     for (const singleton of singletons) {
         code += singleton.importStatement+"\n";
@@ -34,10 +34,18 @@ export default function generateCode(project: Project) {
     code += "\n";
 
     // Generate dependencies
-    code += "// DEPENDENCIES\n";
+    code += "// Dependencies\n";
     const entrypoints = graph.entrypoints;
     for (const entrypoint of entrypoints) {
         code += entrypoint.generateInstantiationCode()
+    }
+
+    code += "\n";
+
+    // Populate @Inject properties
+    code += "// Lazy injects\n";
+    for (const singleton of singletons) {
+        code += singleton.generatePopulateInjectsCode()
     }
 
     console.log();
