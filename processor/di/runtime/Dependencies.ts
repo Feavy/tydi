@@ -1,16 +1,21 @@
 import Singleton from "../annotations/Singleton";
 
+/**
+ * Dependency Manager
+ *
+ * Use it to get dependencies programmatically, at runtime.
+ */
 @Singleton
-export default class DependencyManager {
-    private static _instance: DependencyManager;
+export default class Dependencies {
+    private static _instance: Dependencies;
 
     private dependencies: Map<string, any> = new Map();
 
     public constructor() {
-        if(DependencyManager._instance != null) {
-            throw new Error("DependencyManager has already been instantiated. Use DependencyManager.INSTANCE to get it.")
+        if(Dependencies._instance != null) {
+            throw new Error("Dependencies has already been instantiated. Use Dependencies.INSTANCE to get it.")
         }
-        DependencyManager._instance = this;
+        Dependencies._instance = this;
     }
 
     public register(name: string, dependency: any) {
@@ -22,8 +27,12 @@ export default class DependencyManager {
         return this.dependencies.get(id) as T;
     }
 
-    public getAll() {
+    public list() {
         return [...this.dependencies.values()];
+    }
+
+    public map() {
+        return new Map(this.dependencies);
     }
 
     public static get INSTANCE() {
@@ -38,7 +47,11 @@ export default class DependencyManager {
         return this.INSTANCE.get(id);
     }
 
-    public static getAll() {
-        return this.INSTANCE.getAll();
+    public static list() {
+        return this.INSTANCE.list();
+    }
+
+    public static map() {
+        return this.INSTANCE.map();
     }
 };
