@@ -4,6 +4,7 @@ import SingletonDependency from "./dependency/SingletonDependency";
 import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
+import DependencyManager from "./runtime/DependencyManager";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -17,9 +18,11 @@ export default function generateCode(project: Project) {
         }
     }
 
+
     // 2 - Link dependency graph.
     graph.linkGraph()
     graph.debug()
+
 
     // 3 - Generate code.
     let code: string = "// @ts-nocheck\n";
@@ -33,10 +36,17 @@ export default function generateCode(project: Project) {
 
     code += "\n";
 
+    // Get DependencyManager
+    code += "// DependencyManager\n";
+    let dependencyManager = graph.getDependencyByName(DependencyManager.name);
+    code += dependencyManager.generateInstantiationCode()
+    code += "\n";
+
     // Generate dependencies
     code += "// Dependencies\n";
     const entrypoints = graph.entrypoints;
     for (const entrypoint of entrypoints) {
+        if(entrypoint.instantiated) continue; // DependencyManager
         code += entrypoint.generateInstantiationCode()
     }
 
@@ -46,6 +56,14 @@ export default function generateCode(project: Project) {
     code += "// Lazy injects\n";
     for (const singleton of singletons) {
         code += singleton.generatePopulateInjectsCode()
+    }
+
+    code += "\n";
+
+    // Register dependencies in DependencyManager
+    code += "// Register dependencies in DependencyManager\n";
+    for (const dependency of graph.dependencies) {
+        code += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
     }
 
     console.log();

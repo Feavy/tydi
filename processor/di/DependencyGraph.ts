@@ -6,7 +6,7 @@ type name = string;
 
 export default class DependencyGraph {
 
-    private readonly dependencies: Dependency[] = [];
+    public readonly dependencies: Dependency[] = [];
     private readonly dependenciesByName: Map<name, Dependency> = new Map();
     private readonly dependenciesByType: Map<type, Dependency[]> = new Map();
 
@@ -29,6 +29,10 @@ export default class DependencyGraph {
             }
             list.push(dependency)
         }
+    }
+
+    public getDependencyByName(name: string) {
+        return this.dependenciesByName.get(name);
     }
 
     public getDependency(type: type, name?: name) {
