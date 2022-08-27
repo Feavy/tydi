@@ -22,6 +22,10 @@ export default class DependencyManager {
         return this.dependencies.get(id) as T;
     }
 
+    public getAll() {
+        return [...this.dependencies.values()];
+    }
+
     public static get INSTANCE() {
         return this._instance;
     }
@@ -32,5 +36,9 @@ export default class DependencyManager {
 
     public static get<T>(id: string | { new(...args: any[]): T }): T  {
         return this.INSTANCE.get(id);
+    }
+
+    public static getAll() {
+        return this.INSTANCE.getAll();
     }
 };
