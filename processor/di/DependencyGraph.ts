@@ -72,6 +72,29 @@ export default class DependencyGraph {
                 }
             }
         }
+
+        // Ensure there is no cycle in the graph
+        for (const d1 of this.dependencies) {
+            for (const d2 of d1.dependencies) {
+                const path = this.pathBetween(d2, d1);
+                if(path.length > 0) {
+                    throw new Error("Found a cyclic dependency: " + [d1].concat(path).map(d => d.name).join(" -> ")+"\nYou may use @Inject to break the cycle.")
+                }
+            }
+        }
+    }
+
+    private pathBetween(d1: Dependency, d2: Dependency) {
+        if(d1 === d2) return [d1];
+
+        for (const dependency of d1.dependencies) {
+            const path = [d1].concat(this.pathBetween(dependency, d2));
+            if(path.length > 1) {
+                return path;
+            }
+        }
+
+        return [];
     }
 
     public get singletons(): SingletonDependency[] {
