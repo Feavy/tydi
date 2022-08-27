@@ -1,11 +1,14 @@
 import Dependency from "./Dependency";
 import {ClassDeclaration, Node, Type} from "ts-morph";
 import Inject from "../annotations/Inject";
+import Startup from "../annotations/Startup";
 
 export default class SingletonDependency extends Dependency {
     private constructorDependencies: Dependency[] = [];
     private injectedDependencies: Dependency[] = [];
     private injectedDependenciesProperties: Map<Dependency, string> = new Map();
+
+    private startupMethods: string[] = [];
 
     public constructor(declaration: Node,
                        types: Type[],
@@ -37,12 +40,21 @@ export default class SingletonDependency extends Dependency {
         const constructorDependencies = clazz.getConstructors().flatMap(c => c.getParameters()).map(p => new Dependency(p, [p.getType()], p.getName()));
         const injectedDependencies = clazz.getProperties().filter(p => p.getDecorators().some(d => d.getName() === Inject.name)).map(p => new Dependency(p, [p.getType()], p.getName()));
 
+        const startupMethods = clazz.getMethods().filter(m => m.getDecorators().some(d => d.getName() === Startup.name));
+        for (const startupMethod of startupMethods) {
+            if(startupMethod.getParameters().length !== 0) {
+                throw new Error("A startup method cannot take parameters. That is not the case of:\n    "+startupMethod.getText())
+            }
+        }
+
         const singleton = new SingletonDependency(clazz, types, name, generateImportStatement(clazz));
         singleton.dependencies.push(...constructorDependencies);
         singleton.dependencies.push(...injectedDependencies);
         singleton.injectedDependencies.push(...injectedDependencies);
         singleton.constructorDependencies.push(...constructorDependencies);
         singleton.injectedDependenciesProperties = new Map(injectedDependencies.map(d => [d, d.name]))
+
+        singleton.startupMethods.push(...startupMethods.map(m => m.getName()));
 
         return singleton;
     }
@@ -67,7 +79,20 @@ export default class SingletonDependency extends Dependency {
         }
         return code;
     }
+
+    public generateStartupCode() {
+        let code: string = "";
+        for (const method of this.startupMethods) {
+            code += `${this.variableName}.${method}();\n`;
+        }
+        return code;
+    }
 }
+
+export class StartupMethod {
+
+}
+
 
 function generateImportStatement(clazz: ClassDeclaration): string {
     const className = clazz.getName();

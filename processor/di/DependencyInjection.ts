@@ -66,6 +66,14 @@ export default function generateCode(project: Project) {
         code += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
     }
 
+    code += "\n";
+
+    // Run startup methods
+    code += "// Run @Startup methods\n";
+    for (const singleton of singletons) {
+        code += singleton.generateStartupCode()
+    }
+
     console.log();
 
     console.log("GENERATED:")

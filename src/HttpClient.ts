@@ -5,7 +5,6 @@ import IHttpClient from "./IHttpClient";
 export default class HttpClient implements IHttpClient {
 
     public constructor(private baseUrl: string) {
-        console.log("HttpClient created", this.baseUrl);
     }
     
     public get(url: string): Promise<any> {
