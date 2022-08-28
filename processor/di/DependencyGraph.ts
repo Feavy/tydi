@@ -73,23 +73,29 @@ export default class DependencyGraph {
         }
 
         // Ensure there is no cycle in the graph
-        for (const d1 of this.dependencies) {
-            for (const d2 of d1.dependencies) {
-                const path = this.pathBetween(d2, d1);
-                if(path.length > 0) {
-                    throw new Error("Found a cyclic dependency: " + [d1].concat(path).map(d => d.name).join(" -> ")+"\nYou may use @Inject to break the cycle.")
-                }
+        const visited = new Set<Dependency>();
+        for (const singleton of this.singletons) {
+            if(visited.has(singleton)) continue;
+
+            const cycle = this.findCycle([], singleton, visited);
+            if(cycle.length > 0) {
+                throw new Error("Found a cyclic dependency: " + cycle.map(d => d.name).join(" -> ")+"\nYou may use @Inject to break the cycle.")
             }
         }
     }
 
-    private pathBetween(d1: Dependency, d2: Dependency) {
-        if(d1 === d2) return [d1];
+    private findCycle(path: Dependency[], node: Dependency, visited: Set<Dependency>) {
+        visited.add(node);
+        const index = path.indexOf(node);
+        path = path.concat(node);
+        if(index >= 0) {
+            return path.slice(index);
+        }
 
-        for (const dependency of d1.dependencies) {
-            const path = [d1].concat(this.pathBetween(dependency, d2));
-            if(path.length > 1) {
-                return path;
+        for (const dependency of node.dependencies) {
+            const cycle = this.findCycle(path, dependency, visited);
+            if(cycle.length > 0) {
+                return cycle;
             }
         }
 
