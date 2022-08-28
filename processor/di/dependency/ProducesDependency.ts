@@ -14,6 +14,11 @@ export default class ProducesDependency extends Dependency {
         this.dependencies.push(producer);
     }
 
+    public replace(d1: Dependency, d2: Dependency) {
+        super.replace(d1, d2);
+        d2.hasDependent = true;
+    }
+
     public get producer() {
         return this.dependencies[0] as SingletonDependency
     }

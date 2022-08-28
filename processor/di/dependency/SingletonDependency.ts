@@ -23,6 +23,7 @@ export default class SingletonDependency extends Dependency {
         const index = this.constructorDependencies.indexOf(d1);
         if(index >= 0) {
             this.constructorDependencies[index] = d2;
+            d2.hasDependent = true;
         }
         const index2 = this.injectedDependencies.indexOf(d1);
         if(index2 >= 0) {

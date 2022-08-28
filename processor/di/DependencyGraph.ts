@@ -66,7 +66,6 @@ export default class DependencyGraph {
                 try {
                     const d2 = this.getDependency(type.getText(), d1.name);
                     dependency.replace(d1, d2)
-                    d2.hasDependent = true
                 } catch (e: any) {
                     throw new Error(e.message + " required by\n" + dependency.declaration.getText())
                 }
