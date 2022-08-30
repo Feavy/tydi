@@ -1,5 +1,7 @@
 # Dependency Injection for TypeScript
 
+[![npm version](https://badge.fury.io/js/tydi.svg)](https://badge.fury.io/js/tydi)
+
 Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**.
 
 Syntax is inspired from Java's bean definition.
