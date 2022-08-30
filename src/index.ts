@@ -3,42 +3,30 @@ import {Project} from "ts-morph";
 import {existsSync} from "fs";
 import * as DependencyInjection from "./di/DependencyInjection"
 
-// import * as tsNode from "ts-node";
-// tsNode.register({
-//     esm: true,
-//     moduleTypes:
-// })
-
 export function createSetupDependenciesFile() {
     const project = new Project();
 
     project.addSourceFilesFromTsConfig("./tsconfig.json");
 
-    const src = project.getDirectories()[0];
+    console.log("Generating dependencies file...");
 
-    if (src.getSourceFile("setup_dependencies.ts") == null) {
-        console.log("Generating dependencies file...");
+    // Create CDI file
+    const diCode = DependencyInjection.default(project);
 
-        // Create CDI file
-        const diCode = DependencyInjection.default(project);
+    const cdiFile = project.getDirectories()[0].createSourceFile("setup_dependencies.ts", "", {overwrite: true})
+    cdiFile.addStatements(diCode);
+    cdiFile.saveSync()
 
-        const cdiFile = project.getDirectories()[0].createSourceFile("setup_dependencies.ts")
-        cdiFile.addStatements(diCode);
-        cdiFile.saveSync()
+    console.log("Dependencies file saved successfully!");
 
-        console.log("Dependencies file saved successfully!");
-
-        const src = project.getDirectory("src");
-        const index = src.getSourceFile("index.ts") || src.getSourceFile("main.ts");
-        const firstStatement = index.getStatements()[0];
-        if(firstStatement.getText() === "import \"./setup_dependencies\";") {
-            return;
-        }
-        index.insertStatements(0, "import \"./setup_dependencies\";");
-        index.saveSync()
-    } else {
-        console.log("Dependencies file already exists. Skipping.")
+    const src = project.getDirectory("src");
+    const index = src.getSourceFile("index.ts") || src.getSourceFile("main.ts");
+    const firstStatement = index.getStatements()[0];
+    if(firstStatement.getText() === "import \"./setup_dependencies\";") {
+        return;
     }
+    index.insertStatements(0, "import \"./setup_dependencies\";");
+    index.saveSync()
 }
 
 export default function (program: ts.Program, pluginOptions: {}) {

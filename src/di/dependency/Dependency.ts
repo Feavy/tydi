@@ -6,9 +6,14 @@ export default class Dependency {
     public readonly dependencies: Dependency[] = [];
     public instantiated: boolean = false;
     public readonly variableName: string;
+    public readonly types: string[];
 
-    constructor(public readonly declaration: Node, public readonly types: Type[], public readonly name: string) {
+    constructor(public readonly declaration: Node, types: (Type|string)[], public readonly name: string) {
         this.variableName = Dependency.generateVariableName(name);
+        this.types = types.map(type => {
+            if(typeof type === "string") return type;
+            return type.getText()
+        });
     }
 
     public replace(d1: Dependency, d2: Dependency): void {

@@ -1,13 +1,10 @@
 {
   "name": "tydi",
-  "version": "1.0.0-dev",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Feavy/tydi.git"
   },
-  "files": [
-    "bin"
-  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "[WIP] Dependency Injection for TypeScript at compile-time.",
@@ -23,25 +20,21 @@
     "bean"
   ],
   "scripts": {
-    "start": "vite",
-    "build1": "tsc",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build": "tsc",
     "di": "tydi",
     "test": "node dist/cli.js"
   },
   "devDependencies": {
-    "typescript": "4.7.4",
-    "vite": "^3.0.7"
+    "@types/node": "^18.7.14",
+    "typescript": "4.7.4"
   },
   "dependencies": {
     "@rollup/plugin-typescript": "^8.3.4",
-    "@types/node": "^18.7.11",
     "ts-morph": "^15.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0"
   },
   "bin": {
-    "tydi": "./dist/src/cli.js"
+    "tydi": "./dist/cli.js"
   }
 }

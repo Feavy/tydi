@@ -4,7 +4,7 @@ import SingletonDependency from "./SingletonDependency";
 
 export default class ProducesDependency extends Dependency {
     public constructor(declaration: Node,
-                       types: Type[],
+                       types: (Type|string)[],
                        name: string,
                        producer: SingletonDependency,
                        private readonly isMethod: boolean,

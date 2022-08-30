@@ -4,7 +4,6 @@ import SingletonDependency from "./dependency/SingletonDependency";
 import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
-import Dependencies from "./runtime/Dependencies";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -17,7 +16,6 @@ export default function generateCode(project: Project) {
             graph.addDependency(ProducesDependency.fromDeclaration(singleton, product));
         }
     }
-
 
     // 2 - Link dependency graph.
     graph.linkGraph()
@@ -37,7 +35,7 @@ export default function generateCode(project: Project) {
 
     // Create DependencyManager
     code += "// DependencyManager\n";
-    let dependencyManager = graph.getDependencyByName(Dependencies.name);
+    let dependencyManager = graph.getDependencyByName("Dependencies");
     code += dependencyManager.generateInstantiationCode()
     code += "\n";
 

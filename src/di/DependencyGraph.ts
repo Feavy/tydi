@@ -22,10 +22,10 @@ export default class DependencyGraph {
             this.dependenciesByName.set(dependency.name, dependency);
         }
         for (const type of dependency.types) {
-            let list = this.dependenciesByType.get(type.getText());
+            let list = this.dependenciesByType.get(type);
             if (list == null) {
                 list = [];
-                this.dependenciesByType.set(type.getText(), list);
+                this.dependenciesByType.set(type, list);
             }
             list.push(dependency)
         }
@@ -60,11 +60,11 @@ export default class DependencyGraph {
         for (const dependency of this.dependencies) {
             for (const d1 of dependency.dependencies) {
                 if (d1.types.length > 1) {
-                    throw new Error(`A dependency should have only one type. That is not the case of ${d1.name} in ${dependency.name} which have types ${d1.types.map(d => d.getText())}`)
+                    throw new Error(`A dependency should have only one type. That is not the case of ${d1.name} in ${dependency.name} which have types ${d1.types}`)
                 }
                 const type = d1.types[0]
                 try {
-                    const d2 = this.getDependency(type.getText(), d1.name);
+                    const d2 = this.getDependency(type, d1.name);
                     dependency.replace(d1, d2)
                 } catch (e: any) {
                     throw new Error(e.message + " required by\n" + dependency.declaration.getText())

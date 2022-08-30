@@ -1,8 +1,6 @@
 # Dependency Injection for TypeScript
 
-## This project is still in development and will be released soon
-
-Use TypeScript compiler to auto detect, link and instantiate dependencies **at compile-time**.
+Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**.
 
 Syntax is inspired from Java's bean definition.
 
@@ -17,6 +15,38 @@ A global bean called `Dependencies` is available to get beans programmatically, 
 You can either inject it or use it by static access with methods, like: `Dependencies.list()`
 
 Note that if multiple beans match an injection point the app will not compile. There are no concept of default / alternative beans for the moment.
+
+## Installation
+
+First install tydi with your favorite node package manager.
+
+For instance: `npm install tydi`
+
+Then modify your `tsconfig.json` to include tydi's **lib** path (that contains `Dependencies` bean) :
+
+```json
+{
+  "compilerOptions": {
+    ...
+  },
+  "include": ["src", "node_modules/tydi/lib"]
+}
+```
+
+Now you are ready to type `tydi` in order to update dependencies!
+
+If the command is not available, add a script in `package.json` to run it:
+
+```json
+{
+  "scripts": {
+    "tydi": "tydi"
+  }
+}
+```
+
+Then you should be able to run it with `npm run tydi`
+
 
 ## Example
 
@@ -76,4 +106,46 @@ export default class MyService {
         console.log("[MyService] started!");
     }
 }
+```
+
+## How does it work?
+
+Tydi uses TypeScript compiler (wrapped in ts-morph) to analyze your source files every time you run it.
+
+Then it creates a `setup_dependencies.ts` file to set all the dependencies up.
+
+It also adds a line at the very top of your `index.ts` file to include it.
+
+This file looks like this:
+
+```ts
+// @ts-nocheck
+
+// Imports
+
+// DependencyManager
+const dependencies_12 = new Dependencies();
+
+// Dependencies
+const application_0 = new Application();
+const answer_2 = application_0.answer;
+const baseUrl_4 = application_0.getBaseUrl();
+const httpClient_6 = new HttpClient(baseUrl_4);
+const myService_11 = new MyService(httpClient_6);
+
+// Lazy injects
+myService_11["application"] = application_0;
+myService_11["baseUrl"] = baseUrl_4;
+
+// Register dependencies in DependencyManager
+dependencies_12.register("Application", application_0);
+dependencies_12.register("answer", answer_2);
+dependencies_12.register("baseUrl", baseUrl_4);
+dependencies_12.register("HttpClient", httpClient_6);
+dependencies_12.register("MyService", myService_11);
+dependencies_12.register("Dependencies", dependencies_12);
+
+// Run @Startup methods
+application_0.startup();
+myService_11.startup();
 ```
