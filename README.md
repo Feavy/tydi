@@ -22,7 +22,7 @@ Note that if multiple beans match an injection point the app will not compile. T
 
 First install tydi with your favorite node package manager.
 
-For instance: `npm install tydi`
+For instance: `npm install tydi --save-dev`
 
 Then modify your `tsconfig.json` to include tydi's **lib** path (that contains `Dependencies` bean) :
 
