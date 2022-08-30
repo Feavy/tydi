@@ -90,11 +90,6 @@ export default class SingletonDependency extends Dependency {
     }
 }
 
-export class StartupMethod {
-
-}
-
-
 function generateImportStatement(clazz: ClassDeclaration): string {
     const className = clazz.getName();
     const regex = /(.*)\.ts$/; // /.*((src|processor)\/[^.]+)\.ts$/;

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import tsPlugin from '@rollup/plugin-typescript';
-import transform from './processor/index';
+import transform from './src/index';
 
 export default defineConfig({
     plugins: [

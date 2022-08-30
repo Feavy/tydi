@@ -73,8 +73,6 @@ export default function generateCode(project: Project) {
         code += singleton.generateStartupCode()
     }
 
-    console.log();
-
     // Call setup methods if needed
 
     return code;

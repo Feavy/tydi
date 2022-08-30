@@ -1,11 +1,13 @@
 # Dependency Injection for TypeScript
 
-Use TypeScript transformers to auto detect, link and instantiate dependencies **at compile-time**.
+## This project is still in development and will be released soon
+
+Use TypeScript compiler to auto detect, link and instantiate dependencies **at compile-time**.
 
 Syntax is inspired from Java's bean definition.
 
 The available annotations are:
-- `@Singleton` : Defines a bean class, it will be automatically instantiated and injected into the beans that depend on it.
+- `@Singleton` : Defines a bean (Service) class, it will be automatically instantiated and injected into the beans that depend on it.
 - `@Produces` : A Singleton can have properties and methods annotated with @Produces to turn their (return) value into bean and allow them to be injected in other beans. Note that methods called `getAbc` with produces a bean called `abc`.
 - `@Inject` : Annotated on singleton's properties to inject their value lazily. It makes cyclic dependencies possible.
 - `@Startup` : Singleton's methods annotated with @Startup will be called on start.
@@ -68,7 +70,7 @@ export default class MyService {
     public constructor(private httpClient: IHttpClient) {
     }
 
-    // Startp method
+    // Startup method
     @Startup
     public startup(): void {
         console.log("[MyService] started!");
