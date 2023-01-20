@@ -92,7 +92,7 @@ export default class SingletonDependency extends Dependency {
 
 function generateImportStatement(clazz: ClassDeclaration): string {
     const className = clazz.getName();
-    const regex = /(.*)\.ts$/; // /.*((src|processor)\/[^.]+)\.ts$/;
+    const regex = /(.*)\.tsx?$/; // /.*((src|processor)\/[^.]+)\.ts$/;
     const sourcePath = regex.exec(clazz.getSourceFile().getFilePath())[1].replace(/.*\/node_modules\//, "");
 
     const exportedDeclarations = clazz.getSourceFile().getExportedDeclarations();
