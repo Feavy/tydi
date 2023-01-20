@@ -34,10 +34,12 @@ export default function generateCode(project: Project) {
     code += "\n";
 
     // Create DependencyManager
-    code += "// DependencyManager\n";
     let dependencyManager = graph.getDependencyByName("Dependencies");
-    code += dependencyManager.generateInstantiationCode()
-    code += "\n";
+    if(dependencyManager) {
+        code += "// DependencyManager\n";
+        code += dependencyManager.generateInstantiationCode()
+        code += "\n";
+    }
 
     // Generate dependencies
     code += "// Dependencies\n";

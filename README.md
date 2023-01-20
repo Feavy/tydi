@@ -151,3 +151,16 @@ dependencies_12.register("Dependencies", dependencies_12);
 application_0.startup();
 myService_11.startup();
 ```
+
+## Publishing
+
+```sh
+yarn build
+mkdir dist/lib
+cp src/di/runtime/Dependencies.ts dist/lib
+cp README.md dist
+cp package.json dist
+sed -i '' 's/dist\///g' dist/package.json
+cd dist
+npm publish
+```
