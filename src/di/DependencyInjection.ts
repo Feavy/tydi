@@ -28,7 +28,7 @@ export default function generateCode(project: Project) {
     code += "// Imports\n";
     const singletons = graph.singletons;
     for (const singleton of singletons) {
-        code += singleton.importStatement+"\n";
+        code += singleton.importStatement.replace(project.getDirectory("src").getPath(), ".")+"\n";
     }
 
     code += "\n";
