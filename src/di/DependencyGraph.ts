@@ -92,7 +92,9 @@ export default class DependencyGraph {
             return path.slice(index);
         }
 
-        for (const dependency of node.dependencies) {
+        const dependencies = (node instanceof SingletonDependency) ? node.constructorDependencies : node.dependencies
+
+        for (const dependency of dependencies) {
             const cycle = this.findCycle(path, dependency, visited);
             if(cycle.length > 0) {
                 return cycle;

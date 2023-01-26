@@ -4,7 +4,7 @@ import Inject from "../annotations/Inject";
 import Startup from "../annotations/Startup";
 
 export default class SingletonDependency extends Dependency {
-    private constructorDependencies: Dependency[] = [];
+    public readonly constructorDependencies: Dependency[] = [];
     private injectedDependencies: Dependency[] = [];
     private injectedDependenciesProperties: Map<Dependency, string> = new Map();
 
@@ -62,7 +62,7 @@ export default class SingletonDependency extends Dependency {
 
     public generateInstantiationCode(): string {
         let code: string = "";
-        for (const dependency of this.dependencies) {
+        for (const dependency of this.constructorDependencies) {
             if(dependency.instantiated) continue;
 
             code += dependency.generateInstantiationCode()
