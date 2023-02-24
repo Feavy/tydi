@@ -39,35 +39,44 @@ export default class DependencyGraph {
         // Find by type first
         let dependencies = this.dependenciesByType.get(type);
         if (!dependencies) {
-            throw new Error(`Found no dependency ${name ? `for ${name}` : ""} of type ${type}`)
+            throw new Error(`Found no dependency ${name ? `for ${name}` : ""} of type ${type}`);
         }
+
         if (dependencies.length === 1) {
             return dependencies[0];
         }
 
+        // console.log("list", dependencies.map(d => d.types).join("\n"));
+
         // Then filter by name
         dependencies = dependencies.filter(d => d.name === name);
         if (dependencies.length == 0) {
-            throw new Error(`Found no dependency of type ${type} and name ${name}`)
+            throw new Error(`Found no dependency of type ${type} and name ${name}`);
         }
         if (dependencies.length > 1) {
-            throw new Error(`Found multiple (${dependencies.length}) dependencies of type ${type} and name ${name}`)
+            throw new Error(`Found multiple (${dependencies.length}) dependencies of type ${type} and name ${name}`);
         }
-        return dependencies[0]
+        return dependencies[0];
     }
 
     public linkGraph() {
+        console.log("List of dependencies");
+        console.log(this.dependencies.map(d => d.name+" : "+d.types).join("\n"));
+
         for (const dependency of this.dependencies) {
             for (const d1 of dependency.dependencies) {
                 if (d1.types.length > 1) {
                     throw new Error(`A dependency should have only one type. That is not the case of ${d1.name} in ${dependency.name} which have types ${d1.types}`)
                 }
-                const type = d1.types[0]
+                const type = d1.types[0];
                 try {
                     const d2 = this.getDependency(type, d1.name);
-                    dependency.replace(d1, d2)
+                    d2.found = true;
+                    dependency.replace(d1, d2);
                 } catch (e: any) {
-                    throw new Error(e.message + " required by\n" + dependency.declaration.getText())
+                    if(!d1.ignoreIfNotFound) {
+                        throw new Error(e.message + " required by " + dependency.declaration.getText());
+                    }
                 }
             }
         }

@@ -1,9 +1,15 @@
-import {ClassDeclaration, MethodDeclaration, Project, PropertyDeclaration, SourceFile} from "ts-morph";
+import {
+    ClassDeclaration, ExportAssignment,
+    MethodDeclaration, Project,
+    PropertyDeclaration,
+    SourceFile,
+} from "ts-morph";
 import Singleton from "./annotations/Singleton";
 import SingletonDependency from "./dependency/SingletonDependency";
 import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
+import FunctionDependency from "./dependency/FunctionDependency";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -17,6 +23,12 @@ export default function generateCode(project: Project) {
         }
     }
 
+    const functions = getExportedFunctions();
+    console.log(functions)
+    for (const func of functions) {
+        graph.addDependency(FunctionDependency.fromExport(func));
+    }
+
     // 2 - Link dependency graph.
     graph.linkGraph()
 
@@ -26,9 +38,11 @@ export default function generateCode(project: Project) {
 
     // Generate imports
     code += "// Imports\n";
-    const singletons = graph.singletons;
-    for (const singleton of singletons) {
-        code += singleton.importStatement.replace(project.getDirectory("src").getPath(), ".")+"\n";
+    const dependencies = graph.dependencies;
+    for (const dependency of dependencies) {
+        if(dependency.importStatement) {
+            code += dependency.importStatement.replace(project.getDirectory("src").getPath(), ".")+"\n";
+        }
     }
 
     code += "\n";
@@ -53,6 +67,7 @@ export default function generateCode(project: Project) {
 
     // Populate @Inject properties
     code += "// Lazy injects\n";
+    const singletons = graph.singletons;
     for (const singleton of singletons) {
         code += singleton.generatePopulateInjectsCode()
     }
@@ -77,7 +92,6 @@ export default function generateCode(project: Project) {
 
     return code;
 
-
     function getSingletons(): ClassDeclaration[] {
         const files = project.getSourceFiles();
         const classes = getClasses(files);
@@ -97,5 +111,19 @@ export default function generateCode(project: Project) {
             classes.push(...fileClasses);
         }
         return classes;
+    }
+
+    function getExportedFunctions() {
+        const files = project.getSourceFiles();
+        const functions = getExportAssignments(files);
+        return functions.filter(FunctionDependency.isFunctionDependencyExport)
+    }
+
+    function getExportAssignments(files: SourceFile[]): ExportAssignment[] {
+        const functions: ExportAssignment[] = [];
+        for(const file of files) {
+            functions.push(...file.getExportAssignments());
+        }
+        return functions;
     }
 }

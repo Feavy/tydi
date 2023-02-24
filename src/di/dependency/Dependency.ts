@@ -7,8 +7,10 @@ export default class Dependency {
     public instantiated: boolean = false;
     public readonly variableName: string;
     public readonly types: string[];
+    public ignoreIfNotFound: boolean = false;
+    public found: boolean = false;
 
-    constructor(public readonly declaration: Node, types: (Type|string)[], public readonly name: string) {
+    constructor(public readonly declaration: Node, types: (Type|string)[], public readonly name: string, public importStatement?: string) {
         this.variableName = Dependency.generateVariableName(name);
         this.types = types.map(type => {
             if(typeof type === "string") return type;

@@ -13,9 +13,9 @@ export default class SingletonDependency extends Dependency {
     public constructor(declaration: Node,
                        types: (Type|string)[],
                        name: string,
-                       public readonly importStatement: string
+                       importStatement: string
     ) {
-        super(declaration, types, name);
+        super(declaration, types, name, importStatement);
     }
 
     public replace(d1: Dependency, d2: Dependency) {
