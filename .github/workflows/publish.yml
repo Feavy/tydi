@@ -1,0 +1,32 @@
+name: Publish Package to npmjs
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: |
+          git config --local user.email "github-action"
+          git config --local user.name "GitHub"
+      - run: npm version $GITHUB_REF_NAME -m "[RELEASE] %s"
+      - run: npm run build
+      - run: |
+          mkdir dist/lib
+          cp src/di/runtime/Dependencies.ts dist/lib
+          cp package.json dist
+          cp README.md dist
+          sed -i '' 's/dist\///g' dist/package.json
+      - run: cd dist && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: git push origin HEAD:main
