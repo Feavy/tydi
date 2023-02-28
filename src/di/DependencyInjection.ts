@@ -9,7 +9,7 @@ import SingletonDependency from "./dependency/SingletonDependency";
 import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
-import FunctionDependency from "./dependency/FunctionDependency";
+import FunctionDependency, { Function } from "./dependency/FunctionDependency";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -23,10 +23,10 @@ export default function generateCode(project: Project) {
         }
     }
 
-    const functions = getExportedFunctions();
-    console.log(functions)
+    const functions = getInjectDependenciesFunction();
+
     for (const func of functions) {
-        graph.addDependency(FunctionDependency.fromExport(func));
+        graph.addDependency(func);
     }
 
     // 2 - Link dependency graph.
@@ -113,10 +113,13 @@ export default function generateCode(project: Project) {
         return classes;
     }
 
-    function getExportedFunctions() {
+    function getInjectDependenciesFunction() {
         const files = project.getSourceFiles();
         const functions = getExportAssignments(files);
-        return functions.filter(FunctionDependency.isFunctionDependencyExport)
+        return functions
+            .map(exp => [exp, tryOrNull(() => FunctionDependency.findExportedInjectDependenciesCallExpression(exp))] as [ExportAssignment, Function | null])
+            .filter(([_, func]) => func != null)
+            .map(([exp, func]) => FunctionDependency.fromExportedFunction(exp, func));
     }
 
     function getExportAssignments(files: SourceFile[]): ExportAssignment[] {
@@ -125,5 +128,13 @@ export default function generateCode(project: Project) {
             functions.push(...file.getExportAssignments());
         }
         return functions;
+    }
+
+    function tryOrNull<T>(func: () => T): T | null {
+        try {
+            return func();
+        } catch (e) {
+            return null;
+        }
     }
 }

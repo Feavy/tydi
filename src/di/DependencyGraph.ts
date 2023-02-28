@@ -60,9 +60,6 @@ export default class DependencyGraph {
     }
 
     public linkGraph() {
-        console.log("List of dependencies");
-        console.log(this.dependencies.map(d => d.name+" : "+d.types).join("\n"));
-
         for (const dependency of this.dependencies) {
             for (const d1 of dependency.dependencies) {
                 if (d1.types.length > 1) {

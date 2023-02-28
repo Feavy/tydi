@@ -35,58 +35,53 @@ export default class FunctionDependency extends Dependency {
         code += `const ${this.variableName}_old = ${this.variableName}.body;\n`;
         code += `${this.variableName}.body = (${inArgs.join(", ")}) => ${this.variableName}_old(${outArgs.join(", ")});\n`;
 
-        /*
-
-        const App = (props: { }, app?: Application) => { ... }
-
-        Le but est d'injecter les dépendances
-
-        App.body = (props: { }) => App(props, // Application dependency // );
-
-         */
-
-        // if(!this.producer.instantiated) {
-        //     code += this.producer.generateInstantiationCode();
-        // }
-        // code += `const ${this.variableName} = ${this.producer.variableName}.${this.member + (this.isMethod ? "()" : "")};\n`;
-        // this.instantiated = true;
-        // return code;
         return code;
     }
 
-    public static fromExport(_export: ExportAssignment): FunctionDependency {
-        const call = _export.getExpression() as CallExpression;
-
-        const original = call.getArguments()[0] as Identifier;
-        const functionName = original.getText();
-
-        const definition = original.getDefinitionNodes()[0] as VariableDeclaration;
-
-        const initializer = definition.getInitializer() as ArrowFunction;
-
-        const parameters = initializer.getParameters();
-
-        // const parameterTypes = parameters.map(p => p.getType());
+    public static fromExportedFunction(_export: ExportAssignment, original: Function): FunctionDependency {
+        const parameters = original.body.getParameters();
 
         const dependencies = parameters.map(p => new Dependency(p, [p.getType()], p.getName()));
         for(const dependency of dependencies) {
             dependency.ignoreIfNotFound = true;
         }
 
-        const functionDependency = new FunctionDependency(_export, [], functionName);
+        const functionDependency = new FunctionDependency(_export, [], original.name);
         functionDependency.dependencies.push(...dependencies);
 
         return functionDependency;
     }
 
-    public static isFunctionDependencyExport(_export: ExportAssignment) {
+    public static findExportedInjectDependenciesCallExpression(_export: ExportAssignment): Function {
         if(_export.getExpression() instanceof CallExpression) {
             const call = _export.getExpression() as CallExpression;
             if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
-                return true;
+                const original = call.getArguments()[0] as Identifier;
+                const functionName = original.getText();
+
+                const definition = original.getDefinitionNodes()[0] as VariableDeclaration;
+
+                return {
+                    name: functionName,
+                    body: definition.getInitializer() as ArrowFunction
+                }
+            }
+        }else if(_export.getExpression() instanceof Identifier) {
+            const identifier = _export.getExpression() as Identifier;
+            const functionName = identifier.getText();
+            const definition = identifier.getDefinitionNodes()[0] as VariableDeclaration;
+            const call = definition.getInitializer() as CallExpression;
+
+            if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
+                const original = call.getArguments()[0] as ArrowFunction;
+
+                return {
+                    name: functionName,
+                    body: original
+                }
             }
         }
-        return false;
+        return null;
     }
 }
 
@@ -100,4 +95,9 @@ function generateImportStatement(variableName: string, _export: ExportAssignment
     const sourcePath = regex.exec(_export.getSourceFile().getFilePath())[1].replace(/.*\/node_modules\//, "");
 
     return `import ${variableName} from "${sourcePath}";`;
+}
+
+export interface Function {
+    name: string;
+    body: ArrowFunction;
 }
