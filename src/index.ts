@@ -18,15 +18,6 @@ export function createSetupDependenciesFile() {
     cdiFile.saveSync()
 
     console.log("Dependencies file saved successfully!");
-
-    const src = project.getDirectory("src");
-    const index = src.getSourceFile("index.ts") || src.getSourceFile("index.tsx") || src.getSourceFile("main.ts") || src.getSourceFile("main.tsx");
-    const firstStatement = index.getStatements()[0];
-    if(firstStatement.getText() === "import \"./setup_dependencies\";") {
-        return;
-    }
-    index.insertStatements(0, "import \"./setup_dependencies\";");
-    index.saveSync()
 }
 
 export default function (program: ts.Program, pluginOptions: {}) {
