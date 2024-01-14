@@ -19,13 +19,14 @@ jobs:
           git config --local user.email "github-action"
           git config --local user.name "GitHub"
       - run: npm version $GITHUB_REF_NAME -m "[RELEASE] %s"
+      - run: npm install
       - run: npm run build
       - run: |
-          mkdir dist/lib
+          mkdir -p dist/lib
           cp src/di/runtime/Dependencies.ts dist/lib
           cp package.json dist
           cp README.md dist
-          sed -i '' 's/dist\///g' dist/package.json
+          sed -i 's/dist\///g' dist/package.json
       - run: cd dist && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
