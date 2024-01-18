@@ -18,18 +18,20 @@ You can either inject it or use it by static access with methods, like: `Depende
 
 Note that if multiple beans match an injection point the app will not compile. There are no concept of default / alternative beans for the moment.
 
-A function `injectDependencies` is also available to inject dependencies into a function. It is useful for working with JSX function components.
+A function `injectDependencies` is also available to inject dependencies into a function which can be useful when working with JSX function components.
 
 ```tsx
-const App: Component = injectDependencies((props: { }, app?: Application) => {
-  return (
-      <>
-        <h1>app={`${app}`}</h1>
-      </>
-  );
-});
-
-export default App;
+export const App = injectDependencies(
+    (app: Application) => (props: {}) => {
+      console.log("props", props)
+      console.log("App", app)
+      return (
+          <>
+            <h1>app={`${app}`}</h1>
+          </>
+      );
+    }
+);
 ```
 
 ## Installation

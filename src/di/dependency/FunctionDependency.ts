@@ -32,8 +32,7 @@ export default class FunctionDependency extends Dependency {
             }
         }
 
-        code += `const ${this.variableName}_old = ${this.variableName}.body;\n`;
-        code += `${this.variableName}.body = (${inArgs.join(", ")}) => ${this.variableName}_old(${outArgs.join(", ")});\n`;
+        code += `${this.variableName}.body = ${this.variableName}(${outArgs.join(", ")});\n`;
 
         return code;
     }
