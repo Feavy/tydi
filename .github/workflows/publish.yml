@@ -24,6 +24,7 @@ jobs:
       - run: |
           mkdir -p dist/lib
           cp src/di/runtime/Dependencies.ts dist/lib
+          cp src/di/runtime/injectDependencies.ts dist/lib
           cp package.json dist
           cp README.md dist
           sed -i 's/dist\///g' dist/package.json
