@@ -1,8 +1,8 @@
 import {
-    ClassDeclaration, ExportAssignment,
+    ClassDeclaration, ExportedDeclarations,
     MethodDeclaration, Project,
     PropertyDeclaration,
-    SourceFile,
+    SourceFile, VariableDeclaration,
 } from "ts-morph";
 import Singleton from "./annotations/Singleton";
 import SingletonDependency from "./dependency/SingletonDependency";
@@ -10,6 +10,7 @@ import Produces from "./annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
 import FunctionDependency, { Function } from "./dependency/FunctionDependency";
+import ExportedVariableDeclaration from "./types/ExportedVariableDeclaration";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -115,19 +116,27 @@ export default function generateCode(project: Project) {
 
     function getInjectDependenciesFunction() {
         const files = project.getSourceFiles();
-        const functions = getExportAssignments(files);
-        return functions
-            .map(exp => [exp, tryOrNull(() => FunctionDependency.findExportedInjectDependenciesCallExpression(exp))] as [ExportAssignment, Function | null])
+        const variables = getExportedVariables(files);
+        return variables
+            .map(exp => [exp, tryOrNull(() => FunctionDependency.findExportedInjectDependenciesCallExpression(exp))] as [ExportedVariableDeclaration, Function | null])
             .filter(([_, func]) => func != null)
-            .map(([exp, func]) => FunctionDependency.fromExportedFunction(exp, func));
+            .map(([exp, func]) => FunctionDependency.fromExportedVariable(exp, func));
     }
 
-    function getExportAssignments(files: SourceFile[]): ExportAssignment[] {
-        const functions: ExportAssignment[] = [];
+    function getExportedVariables(files: SourceFile[]): ExportedVariableDeclaration[] {
+        const variables: ExportedVariableDeclaration[] = [];
         for(const file of files) {
-            functions.push(...file.getExportAssignments());
+            const declarations = [...file.getExportedDeclarations()]
+                .map(([name, declarations]) => [name, declarations[0]] as [string, ExportedDeclarations])
+                .filter(([name, decl]) => decl instanceof VariableDeclaration)
+                .map(d => {return {
+                    name: d[0],
+                    declaration: d[1] as VariableDeclaration
+                } as ExportedVariableDeclaration });
+
+            variables.push(...declarations);
         }
-        return functions;
+        return variables;
     }
 
     function tryOrNull<T>(func: () => T): T | null {

@@ -1,11 +1,12 @@
 import Dependency from "./Dependency";
-import {ArrowFunction, CallExpression, ExportAssignment, Identifier, Type, VariableDeclaration} from "ts-morph";
+import {ArrowFunction, CallExpression, Identifier, Type} from "ts-morph";
 import injectDependencies from "../runtime/injectDependencies";
+import ExportedVariableDeclaration from "../types/ExportedVariableDeclaration";
 
 export default class FunctionDependency extends Dependency {
-    public constructor(declaration: ExportAssignment, types: (Type|string)[], name: string) {
-        super(declaration, types, name);
-        this.importStatement = generateImportStatement(this.variableName, declaration);
+    public constructor(exportedDeclaration: ExportedVariableDeclaration, types: (Type|string)[], name: string) {
+        super(exportedDeclaration.declaration, types, name);
+        this.importStatement = generateImportStatement(this.variableName, exportedDeclaration);
     }
 
     public replace(d1: Dependency, d2: Dependency) {
@@ -20,16 +21,16 @@ export default class FunctionDependency extends Dependency {
         const outArgs: string[] = [];
 
         for (const dependency of this.dependencies) {
-            if(dependency.instantiated) continue;
-
-            code += dependency.generateInstantiationCode()
-
             if(dependency.found) {
                 outArgs.push(dependency.variableName);
             } else {
                 inArgs.push(dependency.variableName+": any");
                 outArgs.push(dependency.variableName);
             }
+
+            if(dependency.instantiated) continue;
+
+            code += dependency.generateInstantiationCode()
         }
 
         code += `${this.variableName}.body = ${this.variableName}(${outArgs.join(", ")});\n`;
@@ -37,7 +38,7 @@ export default class FunctionDependency extends Dependency {
         return code;
     }
 
-    public static fromExportedFunction(_export: ExportAssignment, original: Function): FunctionDependency {
+    public static fromExportedVariable(_export: ExportedVariableDeclaration, original: Function): FunctionDependency {
         const parameters = original.body.getParameters();
 
         const dependencies = parameters.map(p => new Dependency(p, [p.getType()], p.getName()));
@@ -51,32 +52,16 @@ export default class FunctionDependency extends Dependency {
         return functionDependency;
     }
 
-    public static findExportedInjectDependenciesCallExpression(_export: ExportAssignment): Function {
-        if(_export.getExpression() instanceof CallExpression) {
-            const call = _export.getExpression() as CallExpression;
+    public static findExportedInjectDependenciesCallExpression(_export: ExportedVariableDeclaration): Function {
+        const variable = _export.declaration;
+        if(variable.getInitializer() instanceof CallExpression) {
+            const call = variable.getInitializer() as CallExpression;
             if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
-                const original = call.getArguments()[0] as Identifier;
-                const functionName = original.getText();
-
-                const definition = original.getDefinitionNodes()[0] as VariableDeclaration;
+                const body = call.getArguments()[0] as ArrowFunction;
 
                 return {
-                    name: functionName,
-                    body: definition.getInitializer() as ArrowFunction
-                }
-            }
-        }else if(_export.getExpression() instanceof Identifier) {
-            const identifier = _export.getExpression() as Identifier;
-            const functionName = identifier.getText();
-            const definition = identifier.getDefinitionNodes()[0] as VariableDeclaration;
-            const call = definition.getInitializer() as CallExpression;
-
-            if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
-                const original = call.getArguments()[0] as ArrowFunction;
-
-                return {
-                    name: functionName,
-                    body: original
+                    name: variable.getName(),
+                    body
                 }
             }
         }
@@ -84,16 +69,20 @@ export default class FunctionDependency extends Dependency {
     }
 }
 
-function generateImportStatement(variableName: string, _export: ExportAssignment): string {
+function generateImportStatement(variableName: string, _export: ExportedVariableDeclaration): string {
     // const call = _export.getExpression() as CallExpression;
 
     // const original = call.getArguments()[0] as Identifier;
     // const className = original.getText();
 
     const regex = /(.*)\.tsx?$/; // /.*((src|processor)\/[^.]+)\.ts$/;
-    const sourcePath = regex.exec(_export.getSourceFile().getFilePath())[1].replace(/.*\/node_modules\//, "");
+    const sourcePath = regex.exec(_export.declaration.getSourceFile().getFilePath())[1].replace(/.*\/node_modules\//, "");
 
-    return `import ${variableName} from "${sourcePath}";`;
+    if(_export.name === "default") {
+        return `import ${variableName} from "${sourcePath}";`;
+    } else {
+        return `import {${_export.name} as ${variableName}} from "${sourcePath}";`;
+    }
 }
 
 export interface Function {
