@@ -11,6 +11,7 @@ The available annotations are:
 - `@Produces` : A Singleton can have properties and methods annotated with @Produces to turn their (return) value into bean and allow them to be injected in other beans. Note that methods called `getAbc` with produces a bean called `abc`.
 - `@Inject` : Annotated on singleton's properties to inject their value lazily. It makes cyclic dependencies possible.
 - `@Startup` : Singleton's methods annotated with @Startup will be called on start.
+- `@Priority` : Set the priority of a method annotated with @Startup.
 
 A global bean called `Dependencies` is available to get beans programmatically, at runtime.
 
