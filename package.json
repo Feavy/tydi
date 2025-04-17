@@ -6,7 +6,6 @@
     "url": "https://github.com/Feavy/tydi.git"
   },
   "license": "MIT",
-  "main": "dist/index.js",
   "description": "Dependency Injection for TypeScript at compile-time",
   "keywords": [
     "typescript",
@@ -19,14 +18,34 @@
     "java",
     "bean"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "default": "./dist/lib/index.js",
+      "require": "./dist/lib/index.umd.js",
+      "types": "./dist/lib/index.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/index.js",
+      "default": "./dist/cli/index.js",
+      "require": "./dist/cli/index.umd.js",
+      "types": "./dist/cli/index.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "run-s build:lib build:cli build:types",
+    "build:lib": "vite build --config vite.lib.config.js",
+    "build:cli": "vite build --config vite.cli.config.js",
+    "build:types": "tsc",
     "di": "tydi",
-    "test": "node dist/cli.js"
+    "test": "node dist/cli/index.js"
   },
   "devDependencies": {
     "@types/node": "^18.7.14",
-    "typescript": "4.7.4"
+    "glob": "^7.2.3",
+    "npm-run-all": "^4.1.5",
+    "typescript": "4.7.4",
+    "vite": "^6.3.1"
   },
   "dependencies": {
     "@rollup/plugin-typescript": "^8.3.4",
@@ -35,6 +54,6 @@
     "tslib": "^2.4.0"
   },
   "bin": {
-    "tydi": "./dist/cli.js"
+    "tydi": "./dist/cli/index.js"
   }
 }

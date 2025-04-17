@@ -1,8 +1,8 @@
 import Dependency from "./Dependency";
 import {ClassDeclaration, Node, NumericLiteral, Type} from "ts-morph";
-import Inject from "../annotations/Inject";
-import Startup from "../annotations/Startup";
-import Priority from "../annotations/Priority";
+import Inject from "../../lib/annotations/Inject";
+import Startup from "../../lib/annotations/Startup";
+import Priority from "../../lib/annotations/Priority";
 
 interface StartupMethod {
     priority: number;
@@ -17,7 +17,7 @@ export default class SingletonDependency extends Dependency {
 
     public readonly startupMethods: StartupMethod[] = [];
 
-    public constructor(declaration: Node,
+    public constructor(declaration: string,
                        types: (Type|string)[],
                        name: string,
                        importStatement: string
@@ -45,8 +45,8 @@ export default class SingletonDependency extends Dependency {
         types.push(...clazz.getBaseTypes());
         types.push(...clazz.getImplements().map(i => i.getType()))
 
-        const constructorDependencies = clazz.getConstructors().flatMap(c => c.getParameters()).map(p => new Dependency(p, [p.getType()], p.getName()));
-        const injectedDependencies = clazz.getProperties().filter(p => p.getDecorators().some(d => d.getName() === Inject.name)).map(p => new Dependency(p, [p.getType()], p.getName()));
+        const constructorDependencies = clazz.getConstructors().flatMap(c => c.getParameters()).map(p => new Dependency(p.getText(), [p.getType()], p.getName()));
+        const injectedDependencies = clazz.getProperties().filter(p => p.getDecorators().some(d => d.getName() === Inject.name)).map(p => new Dependency(p.getText(), [p.getType()], p.getName()));
 
         const startupMethods = clazz.getMethods().filter(m => m.getDecorators().some(d => d.getName() === Startup.name));
         for (const startupMethod of startupMethods) {
@@ -55,7 +55,7 @@ export default class SingletonDependency extends Dependency {
             }
         }
 
-        const singleton = new SingletonDependency(clazz, types, name, generateImportStatement(clazz));
+        const singleton = new SingletonDependency(clazz.getText(), types, name, generateImportStatement(clazz));
         singleton.dependencies.push(...constructorDependencies);
         singleton.dependencies.push(...injectedDependencies);
         singleton.injectedDependencies.push(...injectedDependencies);

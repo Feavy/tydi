@@ -4,9 +4,9 @@ import {
     PropertyDeclaration,
     SourceFile, VariableDeclaration,
 } from "ts-morph";
-import Singleton from "./annotations/Singleton";
+import Singleton from "../lib/annotations/Singleton";
 import SingletonDependency from "./dependency/SingletonDependency";
-import Produces from "./annotations/Produces";
+import Produces from "../lib/annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
 import FunctionDependency, { Function } from "./dependency/FunctionDependency";
@@ -16,6 +16,7 @@ export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
     // 1 - Collect dependencies and their dependencies (@Singleton, @Produces) & Populate data structure.
     const singletonsClasses = getSingletons();
+    graph.addDependency(new SingletonDependency("built-in dependency bean", ["Dependencies"], "Dependencies", "import { Dependencies } from \"tydi\"; "))
     for (const singleton of singletonsClasses) {
         graph.addDependency(SingletonDependency.fromClassDeclaration(singleton))
         const products = getProducts(singleton)

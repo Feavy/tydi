@@ -15,9 +15,9 @@ export default class DependencyGraph {
         if (dependency.name) {
             if (this.dependenciesByName.has(dependency.name)) {
                 throw new Error(`A dependency already exists for name ${dependency.name} : conflict between\n`
-                    + "   " + dependency.declaration.getText()
+                    + "   " + dependency.declaration
                     + "\nAND\n"
-                    + "   " + this.dependenciesByName.get(dependency.name).declaration.getText())
+                    + "   " + this.dependenciesByName.get(dependency.name).declaration)
             }
             this.dependenciesByName.set(dependency.name, dependency);
         }
@@ -72,7 +72,7 @@ export default class DependencyGraph {
                     dependency.replace(d1, d2);
                 } catch (e: any) {
                     if(!d1.ignoreIfNotFound) {
-                        throw new Error(e.message + " required by " + dependency.declaration.getText());
+                        throw new Error(e.message + " required by " + dependency.declaration);
                     }
                 }
             }

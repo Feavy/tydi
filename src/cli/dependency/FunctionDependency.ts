@@ -1,6 +1,6 @@
 import Dependency from "./Dependency";
 import {ArrowFunction, CallExpression, Identifier, Type} from "ts-morph";
-import injectDependencies from "../runtime/injectDependencies";
+import injectDependencies from "../../lib/runtime/injectDependencies";
 import ExportedVariableDeclaration from "../types/ExportedVariableDeclaration";
 
 export default class FunctionDependency extends Dependency {
