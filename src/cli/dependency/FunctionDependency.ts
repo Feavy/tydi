@@ -5,7 +5,7 @@ import ExportedVariableDeclaration from "../types/ExportedVariableDeclaration";
 
 export default class FunctionDependency extends Dependency {
     public constructor(exportedDeclaration: ExportedVariableDeclaration, types: (Type|string)[], name: string) {
-        super(exportedDeclaration.declaration, types, name);
+        super(exportedDeclaration.declaration.getText(), types, name);
         this.importStatement = generateImportStatement(this.variableName, exportedDeclaration);
     }
 
@@ -41,7 +41,7 @@ export default class FunctionDependency extends Dependency {
     public static fromExportedVariable(_export: ExportedVariableDeclaration, original: Function): FunctionDependency {
         const parameters = original.body.getParameters();
 
-        const dependencies = parameters.map(p => new Dependency(p, [p.getType()], p.getName()));
+        const dependencies = parameters.map(p => new Dependency(p.getText(), [p.getType()], p.getName()));
         for(const dependency of dependencies) {
             dependency.ignoreIfNotFound = true;
         }

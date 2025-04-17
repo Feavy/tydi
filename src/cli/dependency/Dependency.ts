@@ -1,4 +1,4 @@
-import {Node, Type} from "ts-morph";
+import { Type } from "ts-morph";
 
 export default class Dependency {
     private static counter: number = 0;

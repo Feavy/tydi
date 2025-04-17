@@ -10,7 +10,7 @@ export default class ProducesDependency extends Dependency {
                        private readonly isMethod: boolean,
                        private readonly member: string
     ) {
-        super(declaration, types, name);
+        super(declaration.getText(), types, name);
         this.dependencies.push(producer);
     }
 

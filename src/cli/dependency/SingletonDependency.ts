@@ -1,5 +1,5 @@
 import Dependency from "./Dependency";
-import {ClassDeclaration, Node, NumericLiteral, Type} from "ts-morph";
+import {ClassDeclaration, NumericLiteral, Type} from "ts-morph";
 import Inject from "../../lib/annotations/Inject";
 import Startup from "../../lib/annotations/Startup";
 import Priority from "../../lib/annotations/Priority";
