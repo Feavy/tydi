@@ -1,7 +1,6 @@
 name: Publish Package to npmjs
 on:
-  release:
-    types: [published]
+  push:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,10 +17,5 @@ jobs:
       - run: |
           git config --local user.email "github-action"
           git config --local user.name "GitHub"
-      - run: npm version $GITHUB_REF_NAME -m "[RELEASE] %s"
       - run: npm ci
       - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: git push origin HEAD:main
