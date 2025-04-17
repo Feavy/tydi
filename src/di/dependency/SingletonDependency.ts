@@ -1,14 +1,21 @@
 import Dependency from "./Dependency";
-import {ClassDeclaration, Node, Type} from "ts-morph";
+import {ClassDeclaration, Node, NumericLiteral, Type} from "ts-morph";
 import Inject from "../annotations/Inject";
 import Startup from "../annotations/Startup";
+import Priority from "../annotations/Priority";
+
+interface StartupMethod {
+    priority: number;
+    methodName: string;
+    variableName: string;
+}
 
 export default class SingletonDependency extends Dependency {
     public readonly constructorDependencies: Dependency[] = [];
     private injectedDependencies: Dependency[] = [];
     private injectedDependenciesProperties: Map<Dependency, string> = new Map();
 
-    private startupMethods: string[] = [];
+    public readonly startupMethods: StartupMethod[] = [];
 
     public constructor(declaration: Node,
                        types: (Type|string)[],
@@ -55,7 +62,11 @@ export default class SingletonDependency extends Dependency {
         singleton.constructorDependencies.push(...constructorDependencies);
         singleton.injectedDependenciesProperties = new Map(injectedDependencies.map(d => [d, d.name]))
 
-        singleton.startupMethods.push(...startupMethods.map(m => m.getName()));
+        singleton.startupMethods.push(...startupMethods.map(m => ({
+            methodName: m.getName(),
+            variableName: singleton.variableName,
+            priority: (m.getDecorators().find(d => d.getName() === Priority.name)?.getArguments()[0] as NumericLiteral)?.getLiteralValue() ?? 0 
+        })));
 
         return singleton;
     }

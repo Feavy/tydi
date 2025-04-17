@@ -85,9 +85,7 @@ export default function generateCode(project: Project) {
 
     // Run startup methods
     code += "// Run @Startup methods\n";
-    for (const singleton of singletons) {
-        code += singleton.generateStartupCode()
-    }
+    code += generateStartupCode(singletons);
 
     // Call setup methods if needed
 
@@ -137,6 +135,16 @@ export default function generateCode(project: Project) {
             variables.push(...declarations);
         }
         return variables;
+    }
+
+    function generateStartupCode(singletons: SingletonDependency[]) {
+        const startupMethods = singletons.flatMap(s => s.startupMethods).sort((a, b) => b.priority - a.priority);
+
+        let code = "";
+        for(const { variableName, methodName } of startupMethods) {
+            code += `${variableName}.${methodName}();\n`;
+        }
+        return code;
     }
 
     function tryOrNull<T>(func: () => T): T | null {
