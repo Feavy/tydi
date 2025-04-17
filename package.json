@@ -32,6 +32,9 @@
       "types": "./dist/cli/index.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "run-s build:lib build:cli build:types",
     "build:lib": "vite build --config vite.lib.config.js",
