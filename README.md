@@ -1,6 +1,6 @@
 # Dependency Injection for TypeScript
 
-![NPM Version](https://img.shields.io/npm/v/tydi)
+[![NPM Version](https://img.shields.io/npm/v/tydi)](https://www.npmjs.com/package/tydi)
 
 
 Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**. It then generates a simple source file to import. Nothing magic!
