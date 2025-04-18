@@ -2,9 +2,9 @@
 
 [![npm version](https://badge.fury.io/js/tydi.svg)](https://badge.fury.io/js/tydi)
 
-Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**.
+Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**. It then generates a simple source file to import. Nothing magic!
 
-Syntax is inspired from Java's bean definition.
+Syntax is inspired from Jakarta Contexts and Dependency Injection specification.
 
 The available annotations are:
 - `@Singleton` : Defines a bean (Service) class, it will be automatically instantiated and injected into the beans that depend on it.
@@ -41,20 +41,9 @@ First install tydi with your favorite node package manager.
 
 For instance: `npm install tydi --save-dev`
 
-Then modify your `tsconfig.json` to include tydi's **lib** path (that contains `Dependencies` bean) :
-
-```json
-{
-  "compilerOptions": {
-    ...
-  },
-  "include": ["src", "node_modules/tydi/lib"]
-}
-```
-
 Now you are ready to type `tydi` in order to update dependencies!
 
-If the command is not available, add a script in `package.json` to run it:
+If the command is not available you can find it in `./node_module/.bin/tidy` or you can add a script in `package.json` to run it:
 
 ```json
 {
@@ -70,7 +59,7 @@ Then you should be able to run it with `npm run tydi`
 ## Example
 
  ```ts
-// We define a singleton class (also known as a service)
+// We define a singleton class to be injectable (bean)
  @Singleton
 export default class Application {
     // This singleton produces a number bean called "answer" with value 42
@@ -83,8 +72,8 @@ export default class Application {
         return "http://localhost:3000";
     }
 
-    // This method will be called on start
-    @Startup
+    @Startup // This method will be called on application startup
+    @Priority(100) // Optionally set a priority to manage startup methods order
     public startup() {
         console.log("[Application] started!");
         // Get the Map<name, bean> of loaded beans
@@ -167,17 +156,4 @@ dependencies_12.register("Dependencies", dependencies_12);
 // Run @Startup methods
 application_0.startup();
 myService_11.startup();
-```
-
-## Publishing
-
-```sh
-yarn build
-mkdir dist/lib
-cp src/di/runtime/Dependencies.ts dist/lib
-cp README.md dist
-cp package.json dist
-sed -i '' 's/dist\///g' dist/package.json
-cd dist
-npm publish
 ```
