@@ -1,9 +1,9 @@
-# Dependency Injection for TypeScript
+# Simple Dependency Injection for TypeScript
 
 [![NPM Version](https://img.shields.io/npm/v/tydi)](https://www.npmjs.com/package/tydi)
 
 
-Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**. It then generates a simple source file to import. Nothing magic!
+Use TypeScript compiler to automatically detect, instantiate and link your dependencies **at compile-time**. It then generates a simple source file for you to import. Nothing magic 🙂
 
 Syntax is inspired from Jakarta Contexts and Dependency Injection specification.
 
