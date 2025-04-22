@@ -2,7 +2,7 @@ import {
     ClassDeclaration, ExportedDeclarations,
     MethodDeclaration, Project,
     PropertyDeclaration,
-    SourceFile, VariableDeclaration,
+    SourceFile,
 } from "ts-morph";
 import Singleton from "../lib/annotations/Singleton";
 import SingletonDependency from "./dependency/SingletonDependency";
@@ -10,7 +10,7 @@ import Produces from "../lib/annotations/Produces";
 import ProducesDependency from "./dependency/ProducesDependency";
 import DependencyGraph from "./DependencyGraph";
 import FunctionDependency, { Function } from "./dependency/FunctionDependency";
-import ExportedVariableDeclaration from "./types/ExportedVariableDeclaration";
+import ExportedDeclaration from "./types/ExportedVariableDeclaration";
 
 export default function generateCode(project: Project) {
     const graph = new DependencyGraph();
@@ -117,21 +117,21 @@ export default function generateCode(project: Project) {
         const files = project.getSourceFiles();
         const variables = getExportedVariables(files);
         return variables
-            .map(exp => [exp, tryOrNull(() => FunctionDependency.findExportedInjectDependenciesCallExpression(exp))] as [ExportedVariableDeclaration, Function | null])
+            .map(exp => [exp, tryOrNull(() => FunctionDependency.findExportedInjectDependenciesCallExpression(exp))] as [ExportedDeclaration, Function | null])
             .filter(([_, func]) => func != null)
             .map(([exp, func]) => FunctionDependency.fromExportedVariable(exp, func));
     }
 
-    function getExportedVariables(files: SourceFile[]): ExportedVariableDeclaration[] {
-        const variables: ExportedVariableDeclaration[] = [];
+    function getExportedVariables(files: SourceFile[]): ExportedDeclaration[] {
+        const variables: ExportedDeclaration[] = [];
+
         for(const file of files) {
             const declarations = [...file.getExportedDeclarations()]
                 .map(([name, declarations]) => [name, declarations[0]] as [string, ExportedDeclarations])
-                .filter(([name, decl]) => decl instanceof VariableDeclaration)
-                .map(d => {return {
+                .map(d => ({
                     name: d[0],
-                    declaration: d[1] as VariableDeclaration
-                } as ExportedVariableDeclaration });
+                    declaration: d[1] as ExportedDeclarations
+                } as ExportedDeclaration));
 
             variables.push(...declarations);
         }

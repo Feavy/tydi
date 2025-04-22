@@ -22,16 +22,16 @@ Note that if multiple beans match an injection point the app will not compile. T
 A function `injectDependencies` is also available to inject dependencies into a function which can be useful when working with JSX function components.
 
 ```tsx
-export const App = injectDependencies(
-    (app: Application) => (props: {}) => {
-      console.log("props", props)
-      console.log("App", app)
-      return (
-          <>
-            <h1>app={`${app}`}</h1>
-          </>
-      );
-    }
+export const App = injectDependencies((app: Application) =>
+  (props: {}) => {
+    console.log("props", props)
+    console.log("App", app)
+    return (
+        <>
+          <h1>app={`${app}`}</h1>
+        </>
+    );
+  }
 );
 ```
 

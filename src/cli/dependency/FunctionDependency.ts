@@ -1,10 +1,10 @@
 import Dependency from "./Dependency";
-import {ArrowFunction, CallExpression, Identifier, Type} from "ts-morph";
+import { CallExpression, Expression, FunctionExpression, Identifier, Type, VariableDeclaration} from "ts-morph";
 import injectDependencies from "../../lib/runtime/injectDependencies";
-import ExportedVariableDeclaration from "../types/ExportedVariableDeclaration";
+import ExportedDeclaration from "../types/ExportedVariableDeclaration";
 
 export default class FunctionDependency extends Dependency {
-    public constructor(exportedDeclaration: ExportedVariableDeclaration, types: (Type|string)[], name: string) {
+    public constructor(exportedDeclaration: ExportedDeclaration, types: (Type|string)[], name: string) {
         super(exportedDeclaration.declaration.getText(), types, name);
         this.importStatement = generateImportStatement(this.variableName, exportedDeclaration);
     }
@@ -38,7 +38,7 @@ export default class FunctionDependency extends Dependency {
         return code;
     }
 
-    public static fromExportedVariable(_export: ExportedVariableDeclaration, original: Function): FunctionDependency {
+    public static fromExportedVariable(_export: ExportedDeclaration, original: Function): FunctionDependency {
         const parameters = original.body.getParameters();
 
         const dependencies = parameters.map(p => new Dependency(p.getText(), [p.getType()], p.getName()));
@@ -52,15 +52,17 @@ export default class FunctionDependency extends Dependency {
         return functionDependency;
     }
 
-    public static findExportedInjectDependenciesCallExpression(_export: ExportedVariableDeclaration): Function {
-        const variable = _export.declaration;
-        if(variable.getInitializer() instanceof CallExpression) {
-            const call = variable.getInitializer() as CallExpression;
-            if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
-                const body = call.getArguments()[0] as ArrowFunction;
+    public static findExportedInjectDependenciesCallExpression(_export: ExportedDeclaration): Function {
+        const declaration = _export.declaration;
 
+        const expression = declaration instanceof Expression ? declaration : (declaration instanceof VariableDeclaration ? declaration.getInitializer() : undefined);
+        
+        if(expression instanceof CallExpression) {
+            const call = expression;
+            if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {
+                const body = call.getArguments()[0] as FunctionExpression;
                 return {
-                    name: variable.getName(),
+                    name: _export.name,
                     body
                 }
             }
@@ -69,7 +71,7 @@ export default class FunctionDependency extends Dependency {
     }
 }
 
-function generateImportStatement(variableName: string, _export: ExportedVariableDeclaration): string {
+function generateImportStatement(variableName: string, _export: ExportedDeclaration): string {
     // const call = _export.getExpression() as CallExpression;
 
     // const original = call.getArguments()[0] as Identifier;
@@ -87,5 +89,5 @@ function generateImportStatement(variableName: string, _export: ExportedVariable
 
 export interface Function {
     name: string;
-    body: ArrowFunction;
+    body: FunctionExpression;
 }

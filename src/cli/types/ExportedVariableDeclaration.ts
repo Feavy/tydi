@@ -1,8 +1,8 @@
-import {VariableDeclaration} from "ts-morph";
+import { ExportedDeclarations } from "ts-morph";
 
-type ExportedVariableDeclaration = {
+type ExportedDeclaration = {
   name: string;
-  declaration: VariableDeclaration;
+  declaration: ExportedDeclarations;
 }
 
-export default ExportedVariableDeclaration;
+export default ExportedDeclaration;
