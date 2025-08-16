@@ -49,54 +49,46 @@ export default function generateCode(project: Project) {
 
     code += "\n";
 
-    let dependencyManager = graph.getDependencyByName("Dependencies");
-
-    code += `\nif(!${dependencyManager.name}.isInitialized()) {\n`;
-
-    let ifBlock = "";
-
     // Create DependencyManager
+    let dependencyManager = graph.getDependencyByName("Dependencies");
     if(dependencyManager) {
-        ifBlock += "// DependencyManager\n";
-        ifBlock += dependencyManager.generateInstantiationCode()
-        ifBlock += "\n";
+        code += "// DependencyManager\n";
+        code += dependencyManager.generateInstantiationCode()
+        code += "\n";
     }
 
     // Generate dependencies
-    ifBlock += "// Dependencies\n";
+    code += "// Dependencies\n";
     const entrypoints = graph.entrypoints;
     for (const entrypoint of entrypoints) {
         if(entrypoint.instantiated) continue; // DependencyManager
-        ifBlock += entrypoint.generateInstantiationCode()
+        code += entrypoint.generateInstantiationCode()
     }
 
-    ifBlock += "\n";
+    code += "\n";
 
     // Populate @Inject properties
-    ifBlock += "// Lazy injects\n";
+    code += "// Lazy injects\n";
     const singletons = graph.singletons;
     for (const singleton of singletons) {
-        ifBlock += singleton.generatePopulateInjectsCode()
+        code += singleton.generatePopulateInjectsCode()
     }
 
-    ifBlock += "\n";
+    code += "\n";
 
     // Register dependencies in DependencyManager
-    ifBlock += "// Register dependencies in DependencyManager\n";
+    code += "// Register dependencies in DependencyManager\n";
     for (const dependency of graph.dependencies) {
-        ifBlock += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
+        code += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
     }
 
-    ifBlock += "\n";
+    code += "\n";
 
     // Run startup methods
-    ifBlock += "// Run @Startup methods\n";
-    ifBlock += generateStartupCode(singletons);
+    code += "// Run @Startup methods\n";
+    code += generateStartupCode(singletons);
 
     // Call setup methods if needed
-
-    code += indent(ifBlock, 2);
-    code += "}"
 
     return code;
 
@@ -163,9 +155,4 @@ export default function generateCode(project: Project) {
             return null;
         }
     }
-}
-
-function indent(code: string, spaces: number = 2): string {
-    const indent = " ".repeat(spaces);
-    return code.split("\n").map(line => indent + line).join("\n").trimEnd() + "\n";
 }
