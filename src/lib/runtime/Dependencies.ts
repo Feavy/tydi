@@ -12,8 +12,8 @@ export default class Dependencies {
     private dependencies: Map<string, any> = new Map();
 
     public constructor() {
-        if(Dependencies._instance != null) {
-            console.warn("Dependencies singleton has already been instantiated.")
+        if(Dependencies.isInitialized()) {
+            console.warn("Dependencies singleton has already been initialized.")
             return Dependencies._instance;
         }
         Dependencies._instance = this;
@@ -34,6 +34,10 @@ export default class Dependencies {
 
     public map() {
         return new Map(this.dependencies);
+    }
+
+    public static isInitialized() {
+        return this._instance != null;
     }
 
     public static get INSTANCE() {
