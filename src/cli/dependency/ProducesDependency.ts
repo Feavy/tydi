@@ -49,10 +49,10 @@ export default class ProducesDependency extends Dependency {
         return new ProducesDependency(property, types, name, SingletonDependency.fromClassDeclaration(clazz), false, property.getName())
     }
 
-    public generateInstantiationCode(): string {
+    public generateInstantiationCode(dependencyManager: Dependency): string {
         let code: string = "";
         if(!this.producer.instantiated) {
-            code += this.producer.generateInstantiationCode();
+            code += this.producer.generateInstantiationCode(dependencyManager);
         }
         code += `const ${this.variableName} = ${this.producer.variableName}.${this.member + (this.isMethod ? "()" : "")};\n`;
         this.instantiated = true;

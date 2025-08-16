@@ -65,20 +65,20 @@ export default class SingletonDependency extends Dependency {
         singleton.startupMethods.push(...startupMethods.map(m => ({
             methodName: m.getName(),
             variableName: singleton.variableName,
-            priority: (m.getDecorators().find(d => d.getName() === Priority.name)?.getArguments()[0] as NumericLiteral)?.getLiteralValue() ?? 0 
+            priority: (m.getDecorators().find(d => d.getName() === Priority.name)?.getArguments()[0] as NumericLiteral)?.getLiteralValue() ?? 0
         })));
 
         return singleton;
     }
 
-    public generateInstantiationCode(): string {
+    public generateInstantiationCode(dependencyManager: Dependency): string {
         let code: string = "";
         for (const dependency of this.constructorDependencies) {
             if(dependency.instantiated) continue;
 
-            code += dependency.generateInstantiationCode()
+            code += dependency.generateInstantiationCode(dependencyManager)
         }
-        code += `const ${this.variableName} = new ${this.name}(${this.constructorDependencies.map(d => d.variableName).join(", ")});\n`;
+        code += `const ${this.variableName} = ${dependencyManager != null ? `${dependencyManager.variableName}.get(${this.name}) ?? ` : ""}new ${this.name}(${this.constructorDependencies.map(d => d.variableName).join(", ")});\n`;
         this.instantiated = true;
         return code;
     }

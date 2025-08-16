@@ -49,20 +49,21 @@ export default function generateCode(project: Project) {
 
     code += "\n";
 
-    // Create DependencyManager
     let dependencyManager = graph.getDependencyByName("Dependencies");
+
+    code += `const IS_FIRST_INITIALIZATION = !${dependencyManager.name}.isInitialized();\n\n`;
+    // Create DependencyManager
     if(dependencyManager) {
         code += "// DependencyManager\n";
-        code += dependencyManager.generateInstantiationCode()
+        code += dependencyManager.generateInstantiationCode(null)
         code += "\n";
     }
-
     // Generate dependencies
     code += "// Dependencies\n";
     const entrypoints = graph.entrypoints;
     for (const entrypoint of entrypoints) {
         if(entrypoint.instantiated) continue; // DependencyManager
-        code += entrypoint.generateInstantiationCode()
+        code += entrypoint.generateInstantiationCode(dependencyManager)
     }
 
     code += "\n";
@@ -76,19 +77,26 @@ export default function generateCode(project: Project) {
 
     code += "\n";
 
+    code += "// Prevent issues with hot reloading\n";
+    code += "if (IS_FIRST_INITIALIZATION) {\n";
+
+    let ifBlock = "";
+
     // Register dependencies in DependencyManager
-    code += "// Register dependencies in DependencyManager\n";
+    ifBlock += "// Register dependencies in DependencyManager\n";
     for (const dependency of graph.dependencies) {
-        code += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
+        ifBlock += `${dependencyManager.variableName}.register("${dependency.name}", ${dependency.variableName});\n`
     }
 
-    code += "\n";
+    ifBlock += "\n";
 
     // Run startup methods
-    code += "// Run @Startup methods\n";
-    code += generateStartupCode(singletons);
+    ifBlock += "// Run @Startup methods\n";
+    ifBlock += generateStartupCode(singletons);
 
-    // Call setup methods if needed
+    code += indent(ifBlock, 2);
+
+    code += "}\n";
 
     return code;
 
@@ -155,4 +163,9 @@ export default function generateCode(project: Project) {
             return null;
         }
     }
+}
+
+function indent(code: string, spaces: number = 2): string {
+    const indent = " ".repeat(spaces);
+    return code.split("\n").map(line => indent + line).join("\n").trimEnd() + "\n";
 }

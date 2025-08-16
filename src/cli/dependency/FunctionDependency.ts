@@ -14,7 +14,7 @@ export default class FunctionDependency extends Dependency {
         d2.hasDependent = true;
     }
 
-    public generateInstantiationCode(): string {
+    public generateInstantiationCode(dependencyManager: Dependency): string {
         let code: string = "";
 
         const inArgs: string[] = [];
@@ -30,10 +30,11 @@ export default class FunctionDependency extends Dependency {
 
             if(dependency.instantiated) continue;
 
-            code += dependency.generateInstantiationCode()
+            code += dependency.generateInstantiationCode(dependencyManager)
         }
 
-        code += `${this.variableName}.body = ${this.variableName}(${outArgs.join(", ")});\n`;
+        code += `if(!${this.variableName}.original) ${this.variableName}.original = ${this.variableName}.body;\n`;
+        code += `${this.variableName}.body = ${this.variableName}.original(${outArgs.join(", ")});\n`;
 
         return code;
     }
@@ -56,7 +57,7 @@ export default class FunctionDependency extends Dependency {
         const declaration = _export.declaration;
 
         const expression = declaration instanceof Expression ? declaration : (declaration instanceof VariableDeclaration ? declaration.getInitializer() : undefined);
-        
+
         if(expression instanceof CallExpression) {
             const call = expression;
             if (call.getExpression() instanceof Identifier && call.getExpression().getText() == injectDependencies.name) {

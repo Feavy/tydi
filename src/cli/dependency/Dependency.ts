@@ -26,7 +26,7 @@ export default class Dependency {
         this.dependencies[index] = d2;
     }
 
-    public generateInstantiationCode(): string {
+    public generateInstantiationCode(dependencyManager: Dependency): string {
         return "";
     }
 
