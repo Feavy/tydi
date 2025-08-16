@@ -14,7 +14,7 @@ export default class Dependencies {
     public constructor() {
         if(Dependencies._instance != null) {
             console.warn("Dependencies singleton has already been instantiated.")
-            return this._instance;
+            return Dependencies._instance;
         }
         Dependencies._instance = this;
     }
