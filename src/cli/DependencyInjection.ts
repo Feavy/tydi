@@ -42,8 +42,8 @@ export default function generateCode(project: Project) {
     code += "// Imports\n";
     const dependencies = graph.dependencies;
     for (const dependency of dependencies) {
-        if(dependency.importStatement) {
-            code += dependency.importStatement.replace(project.getDirectory("src").getPath(), ".")+"\n";
+        if (dependency.importStatement) {
+            code += dependency.importStatement.replace(project.getDirectory("src").getPath(), ".") + "\n";
         }
     }
 
@@ -53,7 +53,7 @@ export default function generateCode(project: Project) {
 
     code += `const IS_FIRST_INITIALIZATION = !${dependencyManager.name}.isInitialized();\n\n`;
     // Create DependencyManager
-    if(dependencyManager) {
+    if (dependencyManager) {
         code += "// DependencyManager\n";
         code += dependencyManager.generateInstantiationCode(null)
         code += "\n";
@@ -62,7 +62,7 @@ export default function generateCode(project: Project) {
     code += "// Dependencies\n";
     const entrypoints = graph.entrypoints;
     for (const entrypoint of entrypoints) {
-        if(entrypoint.instantiated) continue; // DependencyManager
+        if (entrypoint.instantiated) continue; // DependencyManager
         code += entrypoint.generateInstantiationCode(dependencyManager)
     }
 
@@ -106,7 +106,7 @@ export default function generateCode(project: Project) {
         return classes.filter(c => c.getDecorators().some(d => d.getName() == Singleton.name));
     }
 
-    function getProducts(singleton: ClassDeclaration): (MethodDeclaration|PropertyDeclaration)[] {
+    function getProducts(singleton: ClassDeclaration): (MethodDeclaration | PropertyDeclaration)[] {
         const properties = singleton.getProperties().filter(p => p.getDecorators().some(d => d.getName() == Produces.name))
         const methods = singleton.getMethods().filter(m => m.getDecorators().some(d => d.getName() == Produces.name))
         return [...properties, ...methods]
@@ -114,7 +114,7 @@ export default function generateCode(project: Project) {
 
     function getClasses(files: SourceFile[]) {
         const classes: ClassDeclaration[] = [];
-        for(const file of files) {
+        for (const file of files) {
             const fileClasses = file.getClasses();
             classes.push(...fileClasses);
         }
@@ -133,7 +133,7 @@ export default function generateCode(project: Project) {
     function getExportedVariables(files: SourceFile[]): ExportedDeclaration[] {
         const variables: ExportedDeclaration[] = [];
 
-        for(const file of files) {
+        for (const file of files) {
             const declarations = [...file.getExportedDeclarations()]
                 .map(([name, declarations]) => [name, declarations[0]] as [string, ExportedDeclarations])
                 .map(d => ({
@@ -149,10 +149,11 @@ export default function generateCode(project: Project) {
     function generateStartupCode(singletons: SingletonDependency[]) {
         const startupMethods = singletons.flatMap(s => s.startupMethods).sort((a, b) => b.priority - a.priority);
 
-        let code = "";
-        for(const { variableName, methodName } of startupMethods) {
-            code += `${variableName}.${methodName}();\n`;
+        let code = "(async () => {\n";
+        for (const { variableName, methodName } of startupMethods) {
+            code += indent(`await ${variableName}.${methodName}();\n`, 2);
         }
+        code += "})();\n";
         return code;
     }
 
