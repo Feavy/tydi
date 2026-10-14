@@ -21,7 +21,7 @@ jobs:
       - run: npm version $GITHUB_REF_NAME -m "[RELEASE] %s"
       - run: npm ci
       - run: npm run build
-      - run: npm publish
+      - run: npm stage publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: git push origin HEAD:main
