@@ -3,7 +3,7 @@
 import { Project } from "ts-morph";
 import generateCode from "./DependencyInjection";
 
-const project = new Project();
+const project = new Project({ tsConfigFilePath: "./tsconfig.json", skipAddingFilesFromTsConfig: true });
 
 project.addSourceFilesFromTsConfig("./tsconfig.json");
 
