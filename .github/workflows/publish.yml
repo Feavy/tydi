@@ -18,6 +18,7 @@ jobs:
       - run: |
           git config --local user.email "github-action"
           git config --local user.name "GitHub"
+      - run: npm install -g npm@latest
       - run: npm version $GITHUB_REF_NAME -m "[RELEASE] %s"
       - run: npm ci
       - run: npm run build
